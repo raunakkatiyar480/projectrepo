@@ -18,19 +18,15 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh '''
-                docker -H tcp://192.168.213.130:2375 build -t website:1.0 .
+                rsync -av --delete ./ root@192.168.213.130:/var/lib/docker/volumes/apachevol/_data
                 '''
             }
         }
 
-        stage('Deploy Container') {
+        stage('verify deployment') {
             steps {
                 sh '''
-                docker -H tcp://192.168.213.130:2375 rm -f website || true
-                docker -H tcp://192.168.213.130:2375 run -d \
-                --name website \
-                -p 8080:80 \
-                website:1.0
+                curl -f http://192.168.213.130:8090
                 '''
             }
         }
